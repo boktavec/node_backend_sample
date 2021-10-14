@@ -1,19 +1,27 @@
-const Blog = require('../models/blog')
+const Blog = require("../models/blog");
 
-postBlog = (req, res) => {
-  const body = req.body
+postBlog = async (req, res) => {
+  const body = req.body;
 
   if (!body) {
     return res.status(400).json({
       success: false,
-      error: 'You must provide a blog',
-    })
+      error: "You must provide a blog",
+    });
   }
 
-  const blog = new Blog(body)
+  const exist = await Blog.exists({ id: body.id });
+  if (exist) {
+    return res.status(400).json({
+      success: false,
+      error: "Blog title already exists",
+    });
+  }
+
+  const blog = new Blog(body);
 
   if (!blog) {
-    return res.status(400).json({ success: false, error: err })
+    return res.status(400).json({ success: false, error: err });
   }
 
   blog
@@ -22,15 +30,15 @@ postBlog = (req, res) => {
       return res.status(201).json({
         success: true,
         id: blog._id,
-        message: 'Blog post created!',
-      })
+        message: "Blog post created!",
+      });
     })
-    .catch(error => {
+    .catch((error) => {
       return res.status(400).json({
         error,
-        message: 'Blog post not created!',
-      })
-    })
-}
+        message: "Blog post not created!",
+      });
+    });
+};
 
-module.exports = { postBlog }
+module.exports = postBlog;
